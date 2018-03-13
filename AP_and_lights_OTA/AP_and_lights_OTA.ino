@@ -16,25 +16,12 @@ const uint16_t PixelCount = 150;                   // make sure to set this to t
 const uint16_t PixelPin = 2;                       // make sure to set this to the correct pin, ignored for Esp8266
 const uint16_t AnimCount = PixelCount / 5 * 2 + 1; // we only need enough animations for the tail and one extra
 
-const uint16_t PixelFadeDuration = 500; // third of a second
+const uint16_t PixelFadeDuration = 1000; // third of a second
 // one second divide by the number of pixels = loop once a second
 const uint16_t NextPixelMoveDuration = 5000 / PixelCount; // how fast we move through the pixels
 
 NeoGamma<NeoGammaTableMethod> colorGamma; // for any fade animations, best to correct gamma
-
-// NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> strip(PixelCount, PixelPin);
-// For Esp8266, the Pin is ignored and it uses GPIO3.
-// There are other Esp8266 alternative methods that provide more pin options, but also have
-// other side effects.
 NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart800KbpsMethod> strip(PixelCount, PixelPin);
-// NeoEsp8266Uart800KbpsMethod also ignores the pin parameter and uses GPI02
-//NeoPixelBus<NeoGrbFeature, NeoEsp8266BitBang800KbpsMethod> strip(PixelCount, PixelPin);
-// NeoEsp8266Uart800KbpsMethod will work with all but pin 16, but is not stable with WiFi
-// being active
-
-// what is stored for state is specific to the need, in this case, the colors and
-// the pixel to animate;
-// basically what ever you need inside the animation update function
 
 struct MyAnimationState
 {
@@ -118,16 +105,16 @@ void setup()
     else if (error == OTA_END_ERROR)
       Serial.println("End Failed");
   });
-  // ArduinoOTA.begin();
+  ArduinoOTA.begin();
   Serial.println("Ready");
   Serial.print("IP address: ");
-  // Serial.println(WiFi.localIP());
+  Serial.println(WiFi.localIP());
 
   server.on("/", handleRoot);
   server.on("/change", handleChange);
   server.on("/off", handleOff);
   server.on("/light", handleLight);
-  // server.begin();
+  server.begin();
   Serial.println("HTTP server started");
   strip.Begin();
   strip.Show();
@@ -138,8 +125,8 @@ void setup()
 
 void loop()
 {
-  // ArduinoOTA.handle();
-  // server.handleClient();
+  ArduinoOTA.handle();
+  server.handleClient();
   if (start > 0)
   {
     animations.UpdateAnimations();
@@ -175,7 +162,7 @@ void LoopAnimUpdate(const AnimationParam &param)
     //
     frontPixel = (frontPixel + 1) % PixelCount; // increment and wrap
     int color = start * 10;
-    if (start > 360)
+    if (start > 70)
     {
       start = 1;
       color = 0;
@@ -184,10 +171,9 @@ void LoopAnimUpdate(const AnimationParam &param)
     if (frontPixel == 0)
     {
       Serial.println("LOOP DONE");
+      Serial.println(start);
       start++;
-      // we looped, lets pick a new front color
-      // frontColor = HslColor(random(360) / 360.0f, 1.0f, 0.25f);
-      frontColor = HslColor(color / 360.0f, 1.0f, 0.25f);
+      frontColor = HslColor(color / 360.0f, 1.0f, 0.5f);
     }
 
     uint16_t indexAnim;
