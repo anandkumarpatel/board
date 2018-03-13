@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "/Users/anandpatel/Library/Arduino15/packages/esp8266/hardware/esp8266/2.4.1/cores/esp8266",
+                "/Users/anandpatel/mule/board/libraries"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": false,
+                "path": [
+                    "/Users/anandpatel/Library/Arduino15/packages/esp8266/hardware/esp8266/2.4.1/cores/esp8266",
+                    "/Users/anandpatel/mule/board/libraries"
+                ]
+            },
+            "intelliSenseMode": "clang-x64",
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ]
+        }
+    ],
+    "version": 3
+}
