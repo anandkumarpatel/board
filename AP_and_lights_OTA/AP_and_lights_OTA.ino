@@ -36,6 +36,8 @@ uint16_t frontPixel = 0; // the front of the loop
 RgbColor frontColor;     // the color at the front of the loop
 
 int start = 1;
+float bright = .2;
+
 ESP8266WebServer server(80);
 
 /* Just a little test message.  Go to http://192.168.4.1 in a web browser
@@ -60,12 +62,33 @@ void handleOff()
 
 void handleLight()
 {
-  server.send(200, "text/html", "<h1>stright wight</h1>");
+  server.send(200, "text/html", "<h1>full blast</h1>");
   start = 0;
   strip.ClearTo(RgbColor(255, 255, 255));
   strip.Show();
 }
 
+void handleDim()
+{
+  server.send(200, "text/html", "<h1>dimming</h1>");
+  if (bright > .1)
+  {
+    bright -= .1;
+  }
+  Serial.println("bright");
+  Serial.println(bright);
+}
+
+void handleBright()
+{
+  server.send(200, "text/html", "<h1>brighter</h1>");
+  if (bright < .4)
+  {
+    bright += .1;
+  }
+  Serial.println("bright");
+  Serial.println(bright);
+}
 void setup()
 {
   Serial.begin(115200);
@@ -112,6 +135,8 @@ void setup()
 
   server.on("/", handleRoot);
   server.on("/change", handleChange);
+  server.on("/dimmer", handleDim);
+  server.on("/brighter", handleBright);
   server.on("/off", handleOff);
   server.on("/light", handleLight);
   server.begin();
@@ -173,7 +198,7 @@ void LoopAnimUpdate(const AnimationParam &param)
       Serial.println("LOOP DONE");
       Serial.println(start);
       start++;
-      frontColor = HslColor(color / 360.0f, 1.0f, 0.5f);
+      frontColor = HslColor(color / 360.0f, 1.0f, bright);
     }
 
     uint16_t indexAnim;
