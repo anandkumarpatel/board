@@ -15,14 +15,11 @@ const char *password = "connectme";
 const uint16_t PixelCount = 200; // make sure to set this to the number of pixels in your strip
 const uint16_t PixelPin = 2;     // make sure to set this to the correct pin, ignored for Esp8266
 
-NeoGamma<NeoGammaTableMethod> colorGamma; // for any fade animations, best to correct gamma
 NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart800KbpsMethod> strip(PixelCount, PixelPin);
 
 int red = 0;
 int green = 0;
 int blue = 0;
-
-float bright = .2;
 
 ESP8266WebServer server(80);
 
@@ -72,37 +69,71 @@ void handleChangeBlue()
 void handleOff()
 {
   server.send(200, "text/html", "<h1>lights off</h1>");
-  strip.ClearTo(RgbColor(0, 0, 0));
+  red = 0;
+  blue = 0;
+  green = 0;
+  strip.ClearTo(RgbColor(red, green, blue));
   strip.Show();
 }
 
 void handleLight()
 {
   server.send(200, "text/html", "<h1>full blast</h1>");
-  strip.ClearTo(RgbColor(255, 255, 255));
+  red = 255;
+  blue = 255;
+  green = 255;
+  strip.ClearTo(RgbColor(red, green, blue));
   strip.Show();
 }
 
 void handleDim()
 {
   server.send(200, "text/html", "<h1>dimming</h1>");
-  if (bright > .1)
+  red = red - 10;
+  blue = blue - 10;
+  green = green - 10;
+
+  if (blue < 0)
   {
-    bright -= .1;
+    blue = 0;
   }
-  Serial.println("bright");
-  Serial.println(bright);
+
+  if (red < 0)
+  {
+    red = 0;
+  }
+
+  if (green < 0)
+  {
+    green = 0;
+  }
+  Serial.println("dim");
 }
 
 void handleBright()
 {
   server.send(200, "text/html", "<h1>brighter</h1>");
-  if (bright < .4)
+  red = red + 10;
+  blue = blue + 10;
+  green = green + 10;
+
+  if (blue > 255)
   {
-    bright += .1;
+    blue = 255;
+  }
+
+  if (red > 255)
+  {
+    red = 255;
+  }
+
+  if (green > 255)
+  {
+    green = 255;
   }
   Serial.println("bright");
-  Serial.println(bright);
+  strip.ClearTo(RgbColor(red, green, blue));
+  strip.Show();
 }
 void setup()
 {
