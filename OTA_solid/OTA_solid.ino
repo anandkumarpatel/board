@@ -12,7 +12,7 @@
 const char *ssid = "Fire Alarm";
 const char *password = "connectme";
 
-const uint16_t PixelCount = 200; // make sure to set this to the number of pixels in your strip
+const uint16_t PixelCount = 150; // make sure to set this to the number of pixels in your strip
 const uint16_t PixelPin = 2;     // make sure to set this to the correct pin, ignored for Esp8266
 
 NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart800KbpsMethod> strip(PixelCount, PixelPin);
@@ -30,6 +30,47 @@ void handleRoot()
 {
   server.send(200, "text/html", "<h1>I work</h1>");
 }
+
+void setPixel()
+{
+  String sp = server.arg("p");
+  String sr = server.arg("r");
+  String sg = server.arg("g");
+  String sb = server.arg("b");
+  String message = "";
+
+  if (sp == "")
+  { //Parameter not found
+
+    message = "p Argument not found";
+  }
+  if (sr == "")
+  { //Parameter not found
+
+    message = "sr Argument not found";
+  }
+  if (sg == "")
+  { //Parameter not found
+
+    message = "sg Argument not found";
+  }
+  if (sb == "")
+  { //Parameter not found
+
+    message = "sb Argument not found";
+  }
+
+  int p = sp.toInt();
+  int r = sr.toInt();
+  int g = sg.toInt();
+  int b = sb.toInt();
+  strip.ClearTo(RgbColor(red, green, blue));
+  strip.SetPixelColor(p, RgbColor(r, g, b));
+
+  strip.Show();
+  server.send(200, "text / plain", message); //Returns the HTTP response
+}
+
 void handleChangeRed()
 {
   server.send(200, "text/html", "<h1>light changed</h1>");
@@ -50,6 +91,13 @@ void handleChangeGreen()
   {
     green = 0;
   }
+  strip.ClearTo(RgbColor(red, green, blue));
+  strip.Show();
+}
+
+void handleReset()
+{
+  server.send(200, "text/html", "<h1>light reset</h1>");
   strip.ClearTo(RgbColor(red, green, blue));
   strip.Show();
 }
@@ -187,6 +235,8 @@ void setup()
   server.on("/bright", handleBright);
   server.on("/off", handleOff);
   server.on("/on", handleLight);
+  server.on("/reset", handleReset);
+  server.on("/set", setPixel);
   server.begin();
   Serial.println("HTTP server started");
   strip.Begin();

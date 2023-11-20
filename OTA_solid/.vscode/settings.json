@@ -2,5 +2,8 @@
   "cSpell.words": [
     "Arduino",
     "println"
-  ]
+  ],
+  "files.associations": {
+    "random": "cpp"
+  }
 }
